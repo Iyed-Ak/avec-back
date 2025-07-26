@@ -1,0 +1,90 @@
+/* Espacement sous la navbar pour que les formations et le titre soient bien visibles */
+.title-container {
+    margin-top: 80px; /* Augmentez cette valeur si vous voulez plus d'espace */
+    text-align: center; /* Centrer le titre */
+}
+.couleur{
+    background-color: #f8f8f8;
+}
+.title {
+    font-size: 36px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 30px; /* Espacement sous le titre */
+}
+
+/* Formation container */
+.formations-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    justify-content: space-between;
+    padding: 0 20px;
+}
+
+/* Carte de formation */
+.formation {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: #f8f8f8;
+    border: 2px solid #FFD700; /* Contour jaune */
+    border-radius: 18px;
+    padding: 20px;
+    width: 30%;
+    box-sizing: border-box;
+    margin-bottom: 20px; /* Espacement entre les lignes de formations */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Transition douce pour le hover */
+}
+
+/* Effet de survol (hover) */
+.formation:hover {
+    transform: translateY(-5px); /* Légère élévation au survol */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Ombre portée */
+    border-color: #FF8C00; /* Changer la couleur du contour au survol */
+}
+
+/* Image à gauche */
+.image-container {
+    width: 40%;
+    max-width: 150px;
+    margin-right: 15px;
+}
+
+.image-container img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+/* Détails à droite de l'image */
+.details {
+    width: 60%;
+}
+
+/* Titre et description */
+.text-principal {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+    color: #333;
+}
+
+.text-secondaire {
+    font-size: 14px;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Media Queries pour la réactivité */
+@media (max-width: 768px) {
+    .formation {
+        width: 45%;
+    }
+}
+
+@media (max-width: 480px) {
+    .formation {
+        width: 100%;
+    }
+}

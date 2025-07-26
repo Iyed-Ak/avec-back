@@ -1,0 +1,78 @@
+ /* Section entière : Nos Services */
+ .section-services {
+  background-color: #f7f7f7; /* Couleur de fond uniforme */
+  padding: 50px 0; /* Espacement vertical */
+  margin: 20px 0;
+}
+
+/* Titre et sous-titre */
+.section-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #2C3E50; /* Gris foncé */
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background-color: #FFD700; /* Ligne dorée */
+}
+
+.section-subtitle {
+  font-size: 1.2rem;
+  color: #555; /* Gris moyen */
+  margin-bottom: 20px;
+}
+
+/* Cartes de services */
+.service-box {
+  background-color: #fff; /* Fond blanc pour les cartes */
+  border: 2px solid #FFD700; /* Bordure jaune dorée */
+  border-radius: 10px; /* Coins arrondis */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombre légère */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: center;
+}
+
+.service-box:hover {
+  transform: translateY(-10px); /* Animation au survol */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Ombre augmentée */
+}
+
+.service-box img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 50%; /* Forme circulaire */
+  background-color: #FFD700; /* Fond jaune autour de l'icône */
+  padding: 10px;
+  margin-bottom: 15px; /* Espacement sous l'image */
+}
+
+.service-box h5 {
+  font-size: 1.2rem;
+  color: #2C3E50; /* Titre en gris foncé */
+  margin-top: 15px;
+  font-weight: bold;
+}
+
+.service-box p {
+  font-size: 0.95rem;
+  color: #555; /* Gris moyen pour le texte */
+  margin-top: 10px;
+  line-height: 1.5;
+}
+
+/* Ajustement pour petits écrans */
+@media (max-width: 768px) {
+  .service-box {
+    margin-bottom: 20px; /* Espacement entre les boîtes */
+  }
+}

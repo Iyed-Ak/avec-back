@@ -1,0 +1,57 @@
+<p>admin-list works!</p>
+<!-- src/app/admin/components/admin-list/admin-list.component.html -->
+<div class="admin-list-container">
+  <h2>Gestion des Administrateurs</h2>
+
+  <!-- Message d'erreur -->
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <!-- Indicateur de chargement -->
+  <div *ngIf="loading" class="loading-spinner">
+    <p>Chargement des administrateurs...</p>
+  </div>
+
+  <!-- Liste des admins -->
+  <div *ngIf="!loading && !error" class="admins-table-container">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Prénom</th>
+          <th>Email</th>
+          <th>Créé le</th>
+          <th>Dernière connexion</th>
+          <th *ngIf="currentAdmin?.role === 'superAdmin'">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let admin of admins" [class.current-admin]="admin.id === currentAdmin?.id">
+          <td>{{ admin.nom || '-' }}</td>
+          <td>{{ admin.prenom || '-' }}</td>
+          <td>
+            {{ admin.email }}
+            <span *ngIf="admin.id === currentAdmin?.id" class="current-badge">(Vous)</span>
+          </td>
+          <td>{{ formatDate(admin.createdAt) }}</td>
+          <td>{{ formatDate(admin.lastLogin) }}</td>
+          <td *ngIf="currentAdmin?.role === 'superAdmin'">
+            <button 
+              *ngIf="canDeleteAdmin(admin)"
+              class="btn btn-danger btn-sm"
+              (click)="deleteAdmin(admin)"
+              title="Supprimer cet admin">
+              <i class="fas fa-trash"></i> Supprimer
+            </button>
+            <span *ngIf="!canDeleteAdmin(admin)" class="text-muted">-</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="admins.length === 0" class="no-data">
+      <p>Aucun administrateur trouvé.</p>
+    </div>
+  </div>
+</div>

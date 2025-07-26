@@ -1,0 +1,48 @@
+<!-- admin/components/admin-layout/admin-layout.component.html -->
+<div class="admin-container">
+    <div class="admin-sidebar">
+      <h2>Administration</h2>
+      <ul class="admin-menu">
+        <li routerLinkActive="active">
+          <a routerLink="/admin/dashboard">
+            <i class="fas fa-tachometer-alt"></i> Tableau de bord
+          </a>
+        </li>
+        <li routerLinkActive="active">
+          <a routerLink="/admin/formations">
+            <i class="fas fa-graduation-cap"></i> Formations
+          </a>
+        </li>
+        <li routerLinkActive="active">
+          <a routerLink="/admin/inscriptions">
+            <i class="fas fa-users"></i> Inscriptions
+          </a>
+        </li>
+        <li routerLinkActive="active">
+          <a routerLink="/admin/formation/new">
+            <i class="fas fa-plus-circle"></i> Ajouter Formation
+          </a>
+        </li>
+        <li routerLinkActive="active">
+          <a routerLink="/admin/admins">
+            <i class="fas fa-user-shield"></i> Gestion Admins
+          </a>
+        </li>
+        <li routerLinkActive="active">
+          <a routerLink="/admin/change-password">
+            <i class="fas fa-key"></i> Changer mot de passe
+          </a>
+        </li>
+        <li>
+          <a routerLink="/">
+            <i class="fas fa-home"></i> Retour au site
+          </a>
+        </li>
+      </ul>
+    </div>
+  
+    <div class="admin-content">
+      <!-- Contenu dynamique de la page admin actuelle -->
+      <router-outlet></router-outlet>
+    </div>
+  </div>

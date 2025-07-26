@@ -1,0 +1,24 @@
+<html class="couleur">
+
+    <!-- Titre pour la section des formations -->
+    <div class="title-container">
+        <h1 class="title">Tous nos Formations</h1>
+    </div>
+    
+    <!-- Formation container -->
+    <div class="formations-container">
+        <div class="formation" *ngFor="let formation of formations">
+        <div class="image-container">
+            <img [src]="formation.image" [alt]="formation.name" />
+        </div>
+        <div class="details">
+            <h2 class="text-principal">{{ formation.name }}</h2>
+            <p class="text-secondaire">{{ formation.shortDescription }}</p>
+            <a [routerLink]="['/formations', formation.name]" class="btn btn-primary">
+                Voir les détails
+            </a>
+        </div>
+        </div>
+    </div>
+
+</html>

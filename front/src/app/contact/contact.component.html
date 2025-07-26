@@ -1,0 +1,55 @@
+<div class="contact-container">
+    <div class="contact-form">
+      <h2>Contactez-nous</h2>
+      <form (ngSubmit)="onSubmit()" [formGroup]="contactForm" novalidate>
+        
+        <!-- Champ Nom -->
+        <div class="mb-4 form-group">
+          <label class="block text-sm font-medium mb-1" for="name">Nom :</label>
+          <input id="name" formControlName="name" type="text" class="form-input" placeholder="Votre nom">
+          <div *ngIf="contactForm.controls['name'].invalid && contactForm.controls['name'].touched" class="error-message">
+            <i class="fa fa-exclamation-circle"></i> Le nom est requis.
+          </div>
+        </div>
+  
+        <!-- Champ Prénom -->
+        <div class="mb-4 form-group">
+          <label class="block text-sm font-medium mb-1" for="prenom">Prénom :</label>
+          <input id="prenom" formControlName="prenom" type="text" class="form-input" placeholder="Votre prénom">
+          <div *ngIf="contactForm.controls['prenom'].invalid && contactForm.controls['prenom'].touched" class="error-message">
+            <i class="fa fa-exclamation-circle"></i> Le prénom est requis.
+          </div>
+        </div>
+    
+        <!-- Champ Email -->
+        <div class="mb-4 form-group">
+          <label class="block text-sm font-medium mb-1" for="email">Email :</label>
+          <input id="email" formControlName="email" type="email" class="form-input" placeholder="Votre email">
+          <div *ngIf="contactForm.controls['email'].invalid && contactForm.controls['email'].touched" class="error-message">
+            <i class="fa fa-exclamation-circle"></i> Entrez une adresse email valide.
+          </div>
+        </div>
+    
+        <!-- Champ Message -->
+        <div class="mb-4 form-group">
+          <label class="block text-sm font-medium mb-1" for="message">Message :</label>
+          <textarea id="message" formControlName="message" rows="4" class="form-input" placeholder="Votre message"></textarea>
+          <div *ngIf="contactForm.controls['message'].invalid && contactForm.controls['message'].touched" class="error-message">
+            <i class="fa fa-exclamation-circle"></i> Le message est requis.
+          </div>
+        </div>
+    
+        <!-- Bouton de soumission -->
+        <button type="submit" class="submit-button" [disabled]="contactForm.invalid || isSubmitting">
+          <span *ngIf="isSubmitting">Envoi...</span>
+          <span *ngIf="!isSubmitting">Envoyer</span>
+        </button>
+      </form>
+    
+      <!-- Message de succès -->
+      <div *ngIf="formSubmitted" class="success-message">
+        Votre message a bien été envoyé ! Merci de nous avoir contactés.
+      </div>
+    </div>
+  </div>
+  

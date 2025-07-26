@@ -1,0 +1,76 @@
+<!-- admin/components/formation-form/formation-form.component.html -->
+<div class="formation-form-container">
+  <h2>{{ editMode ? 'Modifier' : 'Ajouter' }} une formation</h2>
+  <form [formGroup]="formationForm" (ngSubmit)="saveFormation()">
+    <div class="form-group">
+      <label for="name">Nom de la formation *</label>
+      <input type="text" id="name" formControlName="name" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+      <label for="shortDescription">Courte description *</label>
+      <input type="text" id="shortDescription" formControlName="shortDescription" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+      <label for="fullDescription">Description complète *</label>
+      <textarea id="fullDescription" formControlName="fullDescription" class="form-control" rows="4" required></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group col-md-4">
+        <label for="duration">Durée *</label>
+        <input type="text" id="duration" formControlName="duration" class="form-control" required>
+      </div>
+
+      <div class="form-group col-md-4">
+        <label for="price">Prix *</label>
+        <input type="text" id="price" formControlName="price" class="form-control" required>
+      </div>
+
+      <div class="form-group col-md-4">
+        <label for="freq">Fréquence</label>
+        <input type="text" id="freq" formControlName="freq" class="form-control">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label for="cert">Certification</label>
+        <select id="cert" formControlName="cert" class="form-control">
+          <option value="Oui">Oui</option>
+          <option value="Non">Non</option>
+        </select>
+      </div>
+
+      <div class="form-group col-md-6">
+        <label for="image">URL de l'image</label>
+        <input type="text" id="image" formControlName="image" class="form-control">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="goals">Objectifs (un par ligne)</label>
+      <textarea id="goals" formControlName="goals" class="form-control" rows="4"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="content">Contenu (un par ligne)</label>
+      <textarea id="content" formControlName="content" class="form-control" rows="4"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="benefits">Avantages (un par ligne)</label>
+      <textarea id="benefits" formControlName="benefits" class="form-control" rows="4"></textarea>
+    </div>
+
+    <div class="form-buttons">
+      <button type="submit" class="btn btn-primary" [disabled]="formationForm.invalid">
+        {{ editMode ? 'Mettre à jour' : 'Ajouter' }}
+      </button>
+      <button type="button" class="btn btn-secondary" (click)="cancel()">
+        Annuler
+      </button>
+    </div>
+  </form>
+</div>

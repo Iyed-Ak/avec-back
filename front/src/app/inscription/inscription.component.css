@@ -1,0 +1,124 @@
+.inscription-container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #f7f7f7;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: auto;
+  }
+  
+  h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 1.8rem;
+    color: #2C3E50;
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  label {
+    font-size: 1.1rem;
+    color: #333;
+  }
+  
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  textarea,
+  input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+  
+  button[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    background-color: #33658A;
+    color: white;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  button[type="submit"]:hover {
+    background-color: #e89400;
+  }
+ 
+
+.close-btn {
+  background-color: transparent;
+  color: red;
+  font-size: 2rem;
+  border: none;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.close-btn:hover {
+  color: darkred;
+}
+
+.custom-select select {
+  -webkit-appearance: none; 
+  -moz-appearance: none;    
+  appearance: none;         
+  padding-right: 30px;      
+  width: 100%;              
+}
+
+
+.custom-select {
+  position: relative;
+}
+
+.custom-select::after {
+  content: '▼';             
+  position: absolute;
+  top: 50%;
+  right: 10px;              
+  transform: translateY(-50%);
+  pointer-events: none;     
+  font-size: 14px;          
+  color: #333;              
+}
+.formation-photo {
+  text-align: center;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.formation-photo img {
+  width: 150px;
+  height: auto;
+}
+.error-message {
+  color: red;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+.success-icon {
+  width: 50px;
+  height: 50px;
+  margin-bottom: 20px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+

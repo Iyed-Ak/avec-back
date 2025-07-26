@@ -1,0 +1,74 @@
+<!-- Navbar fixe -->
+<nav class="navbar navbar-expand-lg navbar-light custom-bg fixed-top">
+  <div class="container">
+    <!-- Logo avec fonctionnalité de rafraîchissement -->
+    <a class="navbar-brand" href="#" onclick="location.reload()">
+      <img src="/img/logo.jpg" alt="Logo" class="d-inline-block align-text-top" style="width: 40px; height: 40px;">
+      IFC
+    </a>
+    <!-- Bouton de menu pour les écrans réduits -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!-- Liens de navigation -->
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/acc">Accueil</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/form">Nos Formations</a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/contact" class="nav-link">Contact</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+
+<router-outlet></router-outlet>
+
+
+<router-outlet></router-outlet>
+<footer class="site-footer">
+  <div class="footer-content">
+    <!-- Logo et description -->
+    <div class="footer-section">
+      <img src="img/blob.jpg" alt="Logo du Centre" class="footer-logo" />
+      <p class="footer-description">
+        Centre de formation IFC, votre partenaire pour développer vos compétences dans divers domaines.
+      </p>
+    </div>
+
+    <!-- Coordonnées -->
+    <div class="footer-section">
+      <h4>Contactez-nous</h4>
+      <p>Adresse : Sidi Bouzid, Tunisie</p>
+      <p>Téléphone : +216 92 274 301</p>
+      <p>Email : contact&#64;ifc.com</p>
+    </div>
+
+    <!-- Réseaux sociaux -->
+    <div class="footer-section">
+      <h4>Suivez-nous</h4>
+      <div class="social-icons">
+        <a href="https://www.facebook.com/Jallaliyasmin" target="_blank" class="social-link">
+          <img src="/img/fcb.png" alt="Facebook" />
+        </a>
+        <a href="https://www.instagram.com/ifc_sidi_bouzid_2020/" target="_blank" class="social-link">
+          <img src="/img/inst.png" alt="Instagram" />
+        </a>
+        <a href="https://www.linkedin.com" target="_blank" class="social-link">
+          <img src="img/in.png" alt="LinkedIn" />
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bas de page -->
+  <div class="footer-bottom">
+    <p>&copy; 2025 IFC Centre. Développé par Iyed Akrimi.</p>
+  </div>
+</footer>
