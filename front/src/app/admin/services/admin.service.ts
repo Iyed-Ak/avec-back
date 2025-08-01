@@ -1,54 +1,78 @@
 // admin/services/admin.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, forkJoin } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, forkJoin, throwError } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdminService {
-  private formationsUrl = 'http://localhost:3000/api/formations';;
+  private formationsUrl = 'http://localhost:3000/api/formations';
   private inscriptionsUrl = 'http://localhost:3000/api/inscriptions';
 
   constructor(private http: HttpClient) {}
 
+  // Gestion centralisée des erreurs
+  private handleError(error: HttpErrorResponse) {
+    console.error('Une erreur est survenue:', error);
+    return throwError(() => error);
+  }
+
   // Formations CRUD
   getAllFormations(): Observable<any[]> {
-    return this.http.get<any[]>(this.formationsUrl);
+    return this.http.get<any[]>(this.formationsUrl).pipe(
+      catchError(this.handleError)
+    );
   }
 
   getFormationById(id: string): Observable<any> {
-    return this.http.get<any>(`${this.formationsUrl}/${id}`);
+    return this.http.get<any>(`${this.formationsUrl}/${id}`).pipe(
+      catchError(this.handleError)
+    );
   }
 
   addFormation(formation: any): Observable<any> {
-    return this.http.post<any>(this.formationsUrl, formation);
+    return this.http.post<any>(this.formationsUrl, formation).pipe(
+      catchError(this.handleError)
+    );
   }
 
   updateFormation(id: string, formation: any): Observable<any> {
-    return this.http.put<any>(`${this.formationsUrl}/${id}`, formation);
+    return this.http.put<any>(`${this.formationsUrl}/${id}`, formation).pipe(
+      catchError(this.handleError)
+    );
   }
 
   deleteFormation(id: string): Observable<any> {
-    return this.http.delete<any>(`${this.formationsUrl}/${id}`);
+    return this.http.delete<any>(`${this.formationsUrl}/${id}`).pipe(
+      catchError(this.handleError)
+    );
   }
 
   // Inscriptions CRUD
   getAllInscriptions(): Observable<any[]> {
-    return this.http.get<any[]>(this.inscriptionsUrl);
+    return this.http.get<any[]>(this.inscriptionsUrl).pipe(
+      catchError(this.handleError)
+    );
   }
 
   getInscriptionById(id: string): Observable<any> {
-    return this.http.get<any>(`${this.inscriptionsUrl}/${id}`);
+    return this.http.get<any>(`${this.inscriptionsUrl}/${id}`).pipe(
+      catchError(this.handleError)
+    );
   }
 
   updateInscription(id: string, inscription: any): Observable<any> {
-    return this.http.put<any>(`${this.inscriptionsUrl}/${id}`, inscription);
+    return this.http.put<any>(`${this.inscriptionsUrl}/${id}`, inscription).pipe(
+      catchError(this.handleError)
+    );
   }
 
   deleteInscription(id: string): Observable<any> {
-    return this.http.delete<any>(`${this.inscriptionsUrl}/${id}`);
+    return this.http.delete<any>(`${this.inscriptionsUrl}/${id}`).pipe(
+      catchError(this.handleError)
+    );
   }
 
   // Statistiques
@@ -61,26 +85,52 @@ export class AdminService {
         totalFormations: results.formations.length,
         totalInscriptions: results.inscriptions.length,
         // Vous pourriez ajouter d'autres statistiques ici
-      }))
+      })),
+      catchError(this.handleError)
     );
   }
+
   // Gestion des admins
   getAdminsList(): Observable<any> {
-    return this.http.get<any>('http://localhost:3000/api/admin/list');
+    return this.http.get<any>('http://localhost:3000/api/admin/list').pipe(
+      catchError(this.handleError)
+    );
   }
 
   deleteAdmin(email: string): Observable<any> {
-    return this.http.delete<any>(`http://localhost:3000/api/admin/delete?email=${email}`);
+    return this.http.delete<any>(`http://localhost:3000/api/admin/delete?email=${email}`).pipe(
+      catchError(this.handleError)
+    );
   }
 
   changePassword(currentPassword: string, newPassword: string): Observable<any> {
     return this.http.put<any>('http://localhost:3000/api/admin/change-password', {
       currentPassword,
       newPassword
-    });
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Création et gestion des rôles d'admin
+  createAdmin(adminData: any): Observable<any> {
+    return this.http.post<any>('http://localhost:3000/api/admin/register', adminData).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  changeAdminRole(adminId: string, newRole: string): Observable<any> {
+    return this.http.put<any>('http://localhost:3000/api/admin/change-role', {
+      adminId,
+      newRole
+    }).pipe(
+      catchError(this.handleError)
+    );
   }
 
   verifyToken(): Observable<any> {
-    return this.http.get<any>('http://localhost:3000/api/admin/verify');
+    return this.http.get<any>('http://localhost:3000/api/admin/verify').pipe(
+      catchError(this.handleError)
+    );
   }
 }

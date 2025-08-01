@@ -1,0 +1,153 @@
+<!-- src/app/admin/components/create-admin/create-admin.component.html -->
+<div class="create-admin-container">
+  <h2>Créer un nouvel administrateur</h2>
+
+  <!-- Message de succès -->
+  <div *ngIf="success" class="alert alert-success">
+    <i class="fas fa-check-circle"></i>
+    Administrateur créé avec succès ! Redirection en cours...
+  </div>
+
+  <!-- Message d'erreur -->
+  <div *ngIf="error" class="alert alert-danger">
+    <i class="fas fa-exclamation-triangle"></i>
+    {{ error }}
+  </div>
+
+  <div class="form-container">
+    <form [formGroup]="adminForm" (ngSubmit)="onSubmit()">
+      
+      <div class="form-row">
+        <!-- Nom -->
+        <div class="form-group">
+          <label for="nom">Nom *</label>
+          <input
+            type="text"
+            id="nom"
+            formControlName="nom"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('nom')"
+            placeholder="Nom de famille">
+          <div *ngIf="getFieldError('nom')" class="invalid-feedback">
+            {{ getFieldError('nom') }}
+          </div>
+        </div>
+
+        <!-- Prénom -->
+        <div class="form-group">
+          <label for="prenom">Prénom *</label>
+          <input
+            type="text"
+            id="prenom"
+            formControlName="prenom"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('prenom')"
+            placeholder="Prénom">
+          <div *ngIf="getFieldError('prenom')" class="invalid-feedback">
+            {{ getFieldError('prenom') }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">Email *</label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          class="form-control"
+          [class.is-invalid]="isFieldInvalid('email')"
+          placeholder="adresse@email.com">
+        <div *ngIf="getFieldError('email')" class="invalid-feedback">
+          {{ getFieldError('email') }}
+        </div>
+      </div>
+
+      <!-- Rôle -->
+      <div class="form-group">
+        <label for="role">Rôle *</label>
+        <select
+          id="role"
+          formControlName="role"
+          class="form-control"
+          [class.is-invalid]="isFieldInvalid('role')">
+          <option value="admin">Admin</option>
+          <option value="superAdmin">Super Admin</option>
+        </select>
+        <small class="form-text text-muted">
+          Les Super Admins peuvent gérer les autres administrateurs
+        </small>
+        <div *ngIf="getFieldError('role')" class="invalid-feedback">
+          {{ getFieldError('role') }}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <!-- Mot de passe -->
+        <div class="form-group">
+          <label for="password">Mot de passe *</label>
+          <input
+            type="password"
+            id="password"
+            formControlName="password"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('password')"
+            placeholder="Minimum 6 caractères">
+          <div *ngIf="getFieldError('password')" class="invalid-feedback">
+            {{ getFieldError('password') }}
+          </div>
+        </div>
+
+        <!-- Confirmation mot de passe -->
+        <div class="form-group">
+          <label for="confirmPassword">Confirmer le mot de passe *</label>
+          <input
+            type="password"
+            id="confirmPassword"
+            formControlName="confirmPassword"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('confirmPassword')"
+            placeholder="Répétez le mot de passe">
+          <div *ngIf="getFieldError('confirmPassword')" class="invalid-feedback">
+            {{ getFieldError('confirmPassword') }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Boutons d'action -->
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="cancel()">
+          <i class="fas fa-times"></i> Annuler
+        </button>
+        
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="!adminForm.valid || isSubmitting">
+          <span *ngIf="isSubmitting">
+            <i class="fas fa-spinner fa-spin"></i> Création...
+          </span>
+          <span *ngIf="!isSubmitting">
+            <i class="fas fa-plus"></i> Créer l'administrateur
+          </span>
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- Informations de sécurité -->
+  <div class="security-info">
+    <h4><i class="fas fa-info-circle"></i> Informations importantes</h4>
+    <ul>
+      <li>L'administrateur recevra ses identifiants par email</li>
+      <li>Il devra changer son mot de passe à la première connexion</li>
+      <li>Seuls les Super Admins peuvent créer et supprimer des administrateurs</li>
+      <li>Les Admins standard ont accès à toutes les fonctionnalités sauf la gestion des utilisateurs</li>
+    </ul>
+  </div>
+</div>

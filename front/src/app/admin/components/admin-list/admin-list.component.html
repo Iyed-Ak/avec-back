@@ -1,7 +1,15 @@
-<p>admin-list works!</p>
-<!-- src/app/admin/components/admin-list/admin-list.component.html -->
+<!-- src/app/admin/components/admin-list/admin-list.component.html MISE À JOUR -->
 <div class="admin-list-container">
-  <h2>Gestion des Administrateurs</h2>
+  <div class="header-section">
+    <h2>Gestion des Administrateurs</h2>
+    <button 
+      *ngIf="currentAdmin?.role === 'superAdmin'"
+      class="btn btn-primary"
+      [routerLink]="['/admin/create-admin']">
+      <i class="fas fa-plus"></i> Nouvel Admin
+    </button>
+  </div>
+
 
   <!-- Message d'erreur -->
   <div *ngIf="error" class="alert alert-danger">
@@ -18,9 +26,9 @@
     <table class="admin-table">
       <thead>
         <tr>
-          <th>Nom</th>
-          <th>Prénom</th>
+          <th>Nom complet</th>
           <th>Email</th>
+          <th>Rôle</th>
           <th>Créé le</th>
           <th>Dernière connexion</th>
           <th *ngIf="currentAdmin?.role === 'superAdmin'">Actions</th>
@@ -28,23 +36,39 @@
       </thead>
       <tbody>
         <tr *ngFor="let admin of admins" [class.current-admin]="admin.id === currentAdmin?.id">
-          <td>{{ admin.nom || '-' }}</td>
-          <td>{{ admin.prenom || '-' }}</td>
           <td>
-            {{ admin.email }}
+            {{ (admin.nom || '') + ' ' + (admin.prenom || '') || '-' }}
             <span *ngIf="admin.id === currentAdmin?.id" class="current-badge">(Vous)</span>
+          </td>
+          <td>{{ admin.email }}</td>
+          <td>
+            <span class="role-badge" [class]="'role-' + admin.role">
+              <i class="fas" [class.fa-crown]="admin.role === 'superAdmin'" [class.fa-user]="admin.role === 'admin'"></i>
+              {{ admin.role === 'superAdmin' ? 'Super Admin' : 'Admin' }}
+            </span>
           </td>
           <td>{{ formatDate(admin.createdAt) }}</td>
           <td>{{ formatDate(admin.lastLogin) }}</td>
           <td *ngIf="currentAdmin?.role === 'superAdmin'">
-            <button 
-              *ngIf="canDeleteAdmin(admin)"
-              class="btn btn-danger btn-sm"
-              (click)="deleteAdmin(admin)"
-              title="Supprimer cet admin">
-              <i class="fas fa-trash"></i> Supprimer
-            </button>
-            <span *ngIf="!canDeleteAdmin(admin)" class="text-muted">-</span>
+            <div class="action-buttons">
+              <button 
+                *ngIf="canChangeRole(admin)"
+                class="btn btn-sm btn-info"
+                (click)="changeRole(admin)"
+                title="Changer le rôle">
+                <i class="fas fa-exchange-alt"></i>
+              </button>
+              
+              <button 
+                *ngIf="canDeleteAdmin(admin)"
+                class="btn btn-sm btn-danger"
+                (click)="deleteAdmin(admin)"
+                title="Supprimer cet admin">
+                <i class="fas fa-trash"></i>
+              </button>
+              
+              <span *ngIf="!canDeleteAdmin(admin) && !canChangeRole(admin)" class="text-muted">-</span>
+            </div>
           </td>
         </tr>
       </tbody>

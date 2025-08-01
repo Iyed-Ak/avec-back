@@ -1,5 +1,5 @@
 // ===================================
-// ROUTES ADMIN (routes/admin.js)
+// ROUTES ADMIN AVEC RÔLES (routes/admin.js)
 // ===================================
 
 const express = require('express');
@@ -11,7 +11,7 @@ const Admin = require('../models/Admin');
 const JWT_SECRET = process.env.JWT_SECRET || 'mon_secret';
 
 // ===================================
-// MIDDLEWARE DE PROTECTION
+// MIDDLEWARES DE PROTECTION
 // ===================================
 
 const requireAdmin = async (req, res, next) => {
@@ -24,13 +24,12 @@ const requireAdmin = async (req, res, next) => {
     const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, JWT_SECRET);
     
-    // Vérifier que l'admin existe encore
     const admin = await Admin.findById(decoded.id);
-    if (!admin) {
-      return res.status(401).json({ message: 'Admin non trouvé' });
+    if (!admin || !admin.isActive) {
+      return res.status(401).json({ message: 'Admin non trouvé ou désactivé' });
     }
 
-    req.admin = { id: decoded.id, email: admin.email };
+    req.admin = admin;
     next();
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
@@ -42,14 +41,20 @@ const requireAdmin = async (req, res, next) => {
   }
 };
 
+const requireSuperAdmin = async (req, res, next) => {
+  if (!req.admin || !req.admin.isSuperAdmin()) {
+    return res.status(403).json({ message: 'Accès refusé - Super Admin requis' });
+  }
+  next();
+};
+
 // ===================================
-// ROUTE REGISTER
+// ROUTE REGISTER (Super Admin seulement)
 // ===================================
 
-router.post('/register', async (req, res) => {
-  const { email, password, nom, prenom } = req.body;
+router.post('/register', requireAdmin, requireSuperAdmin, async (req, res) => {
+  const { email, password, nom, prenom, role = 'admin' } = req.body;
 
-  // Validation des données d'entrée
   if (!email || !password) {
     return res.status(400).json({ message: 'Email et mot de passe requis' });
   }
@@ -58,37 +63,40 @@ router.post('/register', async (req, res) => {
     return res.status(400).json({ message: 'Le mot de passe doit contenir au moins 6 caractères' });
   }
 
-  // Validation format email basique
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     return res.status(400).json({ message: 'Format d\'email invalide' });
   }
 
+  if (!['admin', 'superAdmin'].includes(role)) {
+    return res.status(400).json({ message: 'Rôle invalide' });
+  }
+
   try {
-    // Vérifier si admin existe déjà
     const existingAdmin = await Admin.findOne({ email: email.toLowerCase() });
     if (existingAdmin) {
       return res.status(400).json({ message: 'Un admin avec cet email existe déjà' });
     }
 
-    // Créer l'admin - le middleware pre('save') hashera le mot de passe
     const newAdmin = new Admin({ 
       email: email.toLowerCase().trim(),
-      password: password, // Sera hashé automatiquement par le middleware
+      password: password,
       nom: nom?.trim(),
-      prenom: prenom?.trim()
+      prenom: prenom?.trim(),
+      role: role,
+      createdBy: req.admin._id
     });
     
     await newAdmin.save();
 
-    // Ne pas renvoyer le mot de passe dans la réponse
     res.status(201).json({ 
       message: 'Admin créé avec succès',
       admin: {
         id: newAdmin._id,
         email: newAdmin.email,
         nom: newAdmin.nom,
-        prenom: newAdmin.prenom
+        prenom: newAdmin.prenom,
+        role: newAdmin.role
       }
     });
   } catch (err) {
@@ -112,7 +120,6 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
-  // Validation des données d'entrée
   if (!email || !password) {
     return res.status(400).json({ message: 'Email et mot de passe requis' });
   }
@@ -120,17 +127,18 @@ router.post('/login', async (req, res) => {
   console.log('Tentative de connexion pour:', email);
 
   try {
-    // Chercher l'admin (insensible à la casse pour l'email)
-    const admin = await Admin.findOne({ email: email.toLowerCase().trim() });
+    const admin = await Admin.findOne({ 
+      email: email.toLowerCase().trim(),
+      isActive: true 
+    });
+    
     if (!admin) {
-      console.log('Admin introuvable pour email:', email);
-      // Message générique pour éviter l'énumération des comptes
+      console.log('Admin introuvable ou désactivé pour email:', email);
       return res.status(401).json({ message: 'Identifiants invalides' });
     }
 
     console.log('Admin trouvé:', admin.email);
 
-    // Vérifier le mot de passe avec la méthode du modèle
     const isMatch = await admin.comparePassword(password);
     console.log('Vérification mot de passe:', isMatch);
 
@@ -139,11 +147,10 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Identifiants invalides' });
     }
 
-    // Créer le token JWT avec plus d'informations
     const tokenPayload = {
       id: admin._id,
       email: admin.email,
-      role: 'admin'
+      role: admin.role
     };
 
     const token = jwt.sign(tokenPayload, JWT_SECRET, { 
@@ -152,14 +159,12 @@ router.post('/login', async (req, res) => {
       subject: admin._id.toString()
     });
 
-    // Mettre à jour la dernière connexion
     await Admin.findByIdAndUpdate(admin._id, { 
       lastLogin: new Date()
     });
 
     console.log('Connexion réussie pour:', email);
 
-    // Réponse avec token et informations admin (sans mot de passe)
     res.json({
       message: 'Connexion réussie',
       token,
@@ -168,7 +173,7 @@ router.post('/login', async (req, res) => {
         email: admin.email,
         nom: admin.nom,
         prenom: admin.prenom,
-        role: 'admin'
+        role: admin.role
       }
     });
 
@@ -187,15 +192,14 @@ router.post('/login', async (req, res) => {
 
 router.get('/verify', requireAdmin, async (req, res) => {
   try {
-    const admin = await Admin.findById(req.admin.id).select('-password');
     res.json({
       message: 'Token valide',
       admin: {
-        id: admin._id,
-        email: admin.email,
-        nom: admin.nom,
-        prenom: admin.prenom,
-        role: 'admin'
+        id: req.admin._id,
+        email: req.admin.email,
+        nom: req.admin.nom,
+        prenom: req.admin.prenom,
+        role: req.admin.role
       }
     });
   } catch (err) {
@@ -210,7 +214,10 @@ router.get('/verify', requireAdmin, async (req, res) => {
 
 router.get('/list', requireAdmin, async (req, res) => {
   try {
-    const admins = await Admin.find({}).select('-password').sort({ createdAt: -1 });
+    const admins = await Admin.find({ isActive: true })
+      .select('-password')
+      .populate('createdBy', 'email nom prenom')
+      .sort({ createdAt: -1 });
     
     res.json({
       message: 'Liste des admins',
@@ -219,10 +226,13 @@ router.get('/list', requireAdmin, async (req, res) => {
         email: admin.email,
         nom: admin.nom,
         prenom: admin.prenom,
+        role: admin.role,
         createdAt: admin.createdAt,
-        lastLogin: admin.lastLogin
+        lastLogin: admin.lastLogin,
+        createdBy: admin.createdBy
       })),
-      total: admins.length
+      total: admins.length,
+      currentUserRole: req.admin.role
     });
   } catch (err) {
     console.error('Erreur récupération liste admins:', err);
@@ -231,28 +241,36 @@ router.get('/list', requireAdmin, async (req, res) => {
 });
 
 // ===================================
-// ROUTE SUPPRESSION ADMIN
+// ROUTE SUPPRESSION ADMIN (Super Admin seulement)
 // ===================================
 
-router.delete('/delete', requireAdmin, async (req, res) => {
+router.delete('/delete', requireAdmin, requireSuperAdmin, async (req, res) => {
   const { email } = req.query;
 
   if (!email) {
     return res.status(400).json({ message: 'Email requis en paramètre' });
   }
 
-  // Empêcher l'auto-suppression
   if (email.toLowerCase() === req.admin.email.toLowerCase()) {
     return res.status(400).json({ message: 'Vous ne pouvez pas supprimer votre propre compte' });
   }
 
   try {
-    const adminToDelete = await Admin.findOne({ email: email.toLowerCase() });
+    const adminToDelete = await Admin.findOne({ 
+      email: email.toLowerCase(),
+      isActive: true 
+    });
+    
     if (!adminToDelete) {
       return res.status(404).json({ message: 'Admin non trouvé' });
     }
 
-    await Admin.deleteOne({ email: email.toLowerCase() });
+    // Soft delete au lieu de hard delete
+    await Admin.findByIdAndUpdate(adminToDelete._id, { 
+      isActive: false,
+      deletedAt: new Date(),
+      deletedBy: req.admin._id
+    });
     
     res.json({ 
       message: 'Admin supprimé avec succès',
@@ -272,6 +290,50 @@ router.delete('/delete', requireAdmin, async (req, res) => {
 });
 
 // ===================================
+// ROUTE CHANGEMENT RÔLE (Super Admin seulement)
+// ===================================
+
+router.put('/change-role', requireAdmin, requireSuperAdmin, async (req, res) => {
+  const { adminId, newRole } = req.body;
+
+  if (!adminId || !newRole) {
+    return res.status(400).json({ message: 'ID admin et nouveau rôle requis' });
+  }
+
+  if (!['admin', 'superAdmin'].includes(newRole)) {
+    return res.status(400).json({ message: 'Rôle invalide' });
+  }
+
+  if (adminId === req.admin._id.toString()) {
+    return res.status(400).json({ message: 'Vous ne pouvez pas modifier votre propre rôle' });
+  }
+
+  try {
+    const admin = await Admin.findById(adminId);
+    if (!admin || !admin.isActive) {
+      return res.status(404).json({ message: 'Admin non trouvé' });
+    }
+
+    admin.role = newRole;
+    await admin.save();
+
+    res.json({
+      message: 'Rôle mis à jour avec succès',
+      admin: {
+        id: admin._id,
+        email: admin.email,
+        nom: admin.nom,
+        prenom: admin.prenom,
+        role: admin.role
+      }
+    });
+  } catch (err) {
+    console.error('Erreur changement rôle:', err);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+
+// ===================================
 // ROUTE CHANGEMENT MOT DE PASSE
 // ===================================
 
@@ -287,18 +349,14 @@ router.put('/change-password', requireAdmin, async (req, res) => {
   }
 
   try {
-    const admin = await Admin.findById(req.admin.id);
-    
-    // Vérifier le mot de passe actuel avec la méthode du modèle
-    const isCurrentPasswordValid = await admin.comparePassword(currentPassword);
+    const isCurrentPasswordValid = await req.admin.comparePassword(currentPassword);
     if (!isCurrentPasswordValid) {
       return res.status(401).json({ message: 'Mot de passe actuel incorrect' });
     }
 
-    // Assigner le nouveau mot de passe - le middleware pre('save') le hashera
-    admin.password = newPassword;
-    admin.passwordChangedAt = new Date();
-    await admin.save();
+    req.admin.password = newPassword;
+    req.admin.passwordChangedAt = new Date();
+    await req.admin.save();
 
     console.log('Mot de passe changé pour admin:', req.admin.email);
     res.json({ message: 'Mot de passe mis à jour avec succès' });
@@ -314,8 +372,6 @@ router.put('/change-password', requireAdmin, async (req, res) => {
 // ===================================
 
 router.post('/logout', requireAdmin, async (req, res) => {
-  // Le logout est principalement géré côté client (suppression du token)
-  // Mais on peut enregistrer l'événement
   console.log('Logout admin:', req.admin.email);
   res.json({ message: 'Déconnexion réussie' });
 });

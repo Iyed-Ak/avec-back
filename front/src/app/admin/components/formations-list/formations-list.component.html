@@ -27,7 +27,8 @@
           <button class="btn btn-sm btn-info" (click)="editFormation(formation)">
             <i class="fas fa-edit"></i> Modifier
           </button>
-          <button class="btn btn-sm btn-danger" (click)="deleteFormation(formation.id)">
+          <!-- Utilisation de formation._id au lieu de formation.id -->
+          <button class="btn btn-sm btn-danger" (click)="deleteFormation(formation._id)">
             <i class="fas fa-trash"></i> Supprimer
           </button>
         </td>

@@ -118,3 +118,43 @@
   margin: 0;
   font-style: italic;
 }
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.role-superAdmin {
+  background-color: #ffd700;
+  color: #856404;
+}
+
+.role-admin {
+  background-color: #e7f3ff;
+  color: #0066cc;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.btn-info {
+  color: #fff;
+  background-color: #17a2b8;
+  border-color: #17a2b8;
+}
+
+.btn-info:hover {
+  background-color: #138496;
+  border-color: #117a8b;
+}

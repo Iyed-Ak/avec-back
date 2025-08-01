@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './formations-list.component.html',
   styleUrls: ['./formations-list.component.css'],
   standalone: true,
-  imports: [CommonModule,RouterModule]
+  imports: [CommonModule, RouterModule]
 })
 export class FormationsListComponent implements OnInit {
   formations: any[] = [];
@@ -24,20 +24,33 @@ export class FormationsListComponent implements OnInit {
   }
 
   loadFormations(): void {
-    this.adminService.getAllFormations().subscribe(data => {
-      this.formations = data;
+    this.adminService.getAllFormations().subscribe({
+      next: (data) => {
+        this.formations = data;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des formations:', error);
+        alert('Erreur lors du chargement des formations');
+      }
     });
   }
 
   editFormation(formation: any): void {
-    this.router.navigate(['/admin/formation/edit', formation.id]);
+    // Utilisation de _id au lieu de id
+    this.router.navigate(['/admin/formation/edit', formation._id]);
   }
 
   deleteFormation(id: string): void {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette formation ?')) {
-      this.adminService.deleteFormation(id).subscribe(() => {
-        alert('Formation supprimée avec succès');
-        this.loadFormations();
+      this.adminService.deleteFormation(id).subscribe({
+        next: () => {
+          alert('Formation supprimée avec succès');
+          this.loadFormations(); // Recharger la liste
+        },
+        error: (error) => {
+          console.error('Erreur lors de la suppression:', error);
+          alert('Erreur lors de la suppression de la formation');
+        }
       });
     }
   }

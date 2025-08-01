@@ -3,10 +3,11 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminService } from '../../services/admin.service';
 import { AuthService } from '../../services/auth-service.service';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-admin-list',
-  imports: [CommonModule],
+  imports: [CommonModule,RouterModule],
   templateUrl: './admin-list.component.html',
   styleUrls: ['./admin-list.component.css']
 })
@@ -79,6 +80,32 @@ export class AdminListComponent implements OnInit {
       });
     }
   }
+  // Dans admin-list.component.ts, ajoutez ces méthodes :
+
+canChangeRole(admin: any): boolean {
+  return this.currentAdmin?.role === 'superAdmin' && 
+         admin.id !== this.currentAdmin.id;
+}
+
+changeRole(admin: any): void {
+  if (!this.canChangeRole(admin)) return;
+
+  const newRole = admin.role === 'admin' ? 'superAdmin' : 'admin';
+  const roleLabel = newRole === 'superAdmin' ? 'Super Admin' : 'Admin';
+
+  if (confirm(`Changer le rôle de ${admin.email} vers ${roleLabel} ?`)) {
+    this.adminService.changeAdminRole(admin.id, newRole).subscribe({
+      next: (response) => {
+        console.log('Rôle changé:', response);
+        this.loadAdmins(); // Recharger la liste
+      },
+      error: (error) => {
+        this.error = 'Erreur lors du changement de rôle';
+        console.error('Erreur changement rôle:', error);
+      }
+    });
+  }
+}
 
   formatDate(date: string): string {
     if (!date) return 'Jamais';

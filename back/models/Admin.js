@@ -1,5 +1,5 @@
 // ===================================
-// MODÈLE ADMIN (models/Admin.js)
+// MODÈLE ADMIN AVEC RÔLES (models/Admin.js)
 // ===================================
 
 const mongoose = require('mongoose');
@@ -16,14 +16,20 @@ const adminSchema = new mongoose.Schema({
     trim: true
   },
   password: { type: String, required: true },
+  role: { 
+    type: String, 
+    enum: ['admin', 'superAdmin'], 
+    default: 'admin' 
+  },
+  isActive: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
   lastLogin: { type: Date },
-  passwordChangedAt: { type: Date }
+  passwordChangedAt: { type: Date },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' }
 });
 
 // Middleware pour hasher le mot de passe avant sauvegarde
 adminSchema.pre('save', async function (next) {
-  // Ne hasher que si le mot de passe a été modifié
   if (!this.isModified('password')) return next();
   
   try {
@@ -38,6 +44,20 @@ adminSchema.pre('save', async function (next) {
 // Méthode pour comparer les mots de passe
 adminSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
+};
+
+// Méthode pour vérifier si c'est un super admin
+adminSchema.methods.isSuperAdmin = function() {
+  return this.role === 'superAdmin';
+};
+
+// Méthode pour vérifier les permissions
+adminSchema.methods.canDeleteAdmin = function() {
+  return this.role === 'superAdmin';
+};
+
+adminSchema.methods.canCreateAdmin = function() {
+  return this.role === 'superAdmin';
 };
 
 module.exports = mongoose.model('Admin', adminSchema);

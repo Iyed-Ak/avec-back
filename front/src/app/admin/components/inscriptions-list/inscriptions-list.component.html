@@ -13,7 +13,7 @@
   <div *ngIf="showMap">
     <app-inscriptions-map 
       [inscriptions]="selectedInscription ? [selectedInscription] : inscriptions"
-      [focusOnId]="selectedInscription?.id">
+      [focusOnId]="selectedInscription?._id">
     </app-inscriptions-map>
     
     <!-- Bouton pour revenir à tous les inscrits si un est sélectionné -->
@@ -46,12 +46,12 @@
         <td>{{ inscription.user.telephone }}</td>
         <td>{{ inscription.formation.name }}</td>
         <td>{{ inscription.user.gouvernorat }}</td>
-        <td>{{ inscription.date | date: 'dd/MM/yyyy' }}</td>
+        <td>{{ inscription.createdAt | date: 'dd/MM/yyyy' }}</td>
         <td class="action-buttons">
           <button class="btn btn-sm btn-info" (click)="selectInscription(inscription)" title="Voir sur la carte">
             <i class="fas fa-map-marker-alt"></i>
           </button>
-          <button class="btn btn-sm btn-danger" (click)="deleteInscription(inscription.id)">
+          <button class="btn btn-sm btn-danger" (click)="deleteInscription(inscription._id)">
             <i class="fas fa-trash"></i>
           </button>
         </td>
