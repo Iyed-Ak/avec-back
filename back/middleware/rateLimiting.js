@@ -19,7 +19,8 @@ const generalLimiter = rateLimit({
       error: 'Trop de requêtes depuis cette IP, veuillez réessayer dans 15 minutes.',
       retryAfter: '15 minutes'
     });
-  }
+  },
+  skip: (req, res) => false
 });
 
 const adminLoginLimiter = rateLimit({
@@ -38,7 +39,8 @@ const adminLoginLimiter = rateLimit({
       error: 'Trop de tentatives de connexion. Veuillez réessayer dans 15 minutes.',
       retryAfter: '15 minutes'
     });
-  }
+  },
+  skip: (req, res) => false
 });
 
 const inscriptionLimiter = rateLimit({
@@ -56,19 +58,18 @@ const inscriptionLimiter = rateLimit({
       error: 'Trop d\'inscriptions depuis cette IP, veuillez réessayer dans 1 heure.',
       retryAfter: '1 heure'
     });
-  }
+  },
+  skip: (req, res) => false
 });
 
 const speedLimiter = slowDown({
   windowMs: 15 * 60 * 1000, // 15 minutes
   delayAfter: 50, // Commence à ralentir après 50 requêtes
-  delayMs: 500, // Ajoute 500ms de délai par requête après delayAfter
+  delayMs: () => 500, // Fonction qui retourne le délai fixe
   maxDelayMs: 20000, // Délai maximum de 20 secondes
   skipFailedRequests: false,
   skipSuccessfulRequests: false,
-  onLimitReached: (req, res, options) => {
-    console.log(`Ralentissement activé pour IP: ${req.ip}`);
-  }
+  validate: { delayMs: false } // Désactiver l'avertissement
 });
 
 module.exports = {
