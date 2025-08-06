@@ -2,7 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { tap, catchError, throwError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -29,9 +29,32 @@ export class AuthService {
       );
   }
   
-  logout(): void {
-    localStorage.removeItem(this.tokenKey);
-    this.currentUserSubject.next(null);
+  logout(): Observable<any> {
+    const token = this.getToken();
+    
+    if (token) {
+      return this.http.post<any>(`${this.apiUrl}/logout`, {})
+        .pipe(
+          tap(() => {
+            localStorage.removeItem(this.tokenKey);
+            this.currentUserSubject.next(null);
+            console.log('Déconnexion réussie avec révocation du token');
+          }),
+          catchError((error) => {
+            localStorage.removeItem(this.tokenKey);
+            this.currentUserSubject.next(null);
+            console.error('Erreur lors de la révocation du token:', error);
+            return throwError(() => error);
+          })
+        );
+    } else {
+      localStorage.removeItem(this.tokenKey);
+      this.currentUserSubject.next(null);
+      return new Observable(observer => {
+        observer.next({ message: 'Déconnexion locale réussie' });
+        observer.complete();
+      });
+    }
   }
   
   isAuthenticated(): boolean {
@@ -54,8 +77,10 @@ export class AuthService {
         next: (response) => {
           this.currentUserSubject.next(response.admin);
         },
-        error: () => {
-          this.logout();
+        error: (error) => {
+          console.log('Token invalide au démarrage, nettoyage local:', error);
+          localStorage.removeItem(this.tokenKey);
+          this.currentUserSubject.next(null);
         }
       });
     }
@@ -63,5 +88,31 @@ export class AuthService {
 
   verifyToken(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/verify`);
+  }
+
+  startTokenValidityCheck(): void {
+    if (this.isAuthenticated()) {
+      // Vérifier toutes les 5 minutes
+      setInterval(() => {
+        if (this.isAuthenticated()) {
+          this.verifyToken().subscribe({
+            next: (response) => {
+              this.currentUserSubject.next(response.admin);
+            },
+            error: (error) => {
+              console.log('Token devenu invalide, déconnexion automatique:', error);
+              localStorage.removeItem(this.tokenKey);
+              this.currentUserSubject.next(null);
+            }
+          });
+        }
+      }, 5 * 60 * 1000); // 5 minutes
+    }
+  }
+
+  forceLogout(): void {
+    localStorage.removeItem(this.tokenKey);
+    this.currentUserSubject.next(null);
+    console.log('Déconnexion forcée - token révoqué');
   }
 }

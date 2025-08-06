@@ -7,6 +7,10 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const Admin = require('../models/Admin');
+const TokenBlacklist = require('../models/TokenBlacklist');
+const { adminLimiter, loginLimiter } = require('../middleware/rateLimiter');
+const { validateAdmin, validateLogin, validateChangePassword, validateChangeRole, validateDeleteAdminQuery } = require('../middleware/validation');
+const { logSecurityEvent, logAuthAttempt } = require('../config/logger');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'mon_secret';
 
@@ -18,26 +22,104 @@ const requireAdmin = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ message: 'Token manquant ou format invalide' });
+      logSecurityEvent('MISSING_AUTH_TOKEN', {
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        url: req.originalUrl,
+        severity: 'medium'
+      });
+      return res.status(401).json({ 
+        message: 'Token manquant ou format invalide',
+        code: 'MISSING_TOKEN'
+      });
     }
 
     const token = authHeader.split(' ')[1];
+    
+    const isBlacklisted = await TokenBlacklist.isTokenBlacklisted(token);
+    if (isBlacklisted) {
+      logSecurityEvent('BLACKLISTED_TOKEN_USED', {
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        url: req.originalUrl,
+        severity: 'high'
+      });
+      return res.status(401).json({ 
+        message: 'Token révoqué',
+        code: 'TOKEN_REVOKED'
+      });
+    }
+    
     const decoded = jwt.verify(token, JWT_SECRET);
     
     const admin = await Admin.findById(decoded.id);
     if (!admin || !admin.isActive) {
-      return res.status(401).json({ message: 'Admin non trouvé ou désactivé' });
+      logSecurityEvent('INVALID_ADMIN_TOKEN', {
+        adminId: decoded.id,
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        url: req.originalUrl,
+        severity: 'high'
+      });
+      return res.status(401).json({ 
+        message: 'Admin non trouvé ou désactivé',
+        code: 'INVALID_ADMIN'
+      });
+    }
+
+    if (admin.passwordChangedAt && decoded.iat * 1000 < admin.passwordChangedAt.getTime()) {
+      logSecurityEvent('TOKEN_AFTER_PASSWORD_CHANGE', {
+        adminId: admin._id,
+        adminEmail: admin.email,
+        ip: req.ip,
+        severity: 'medium'
+      });
+      return res.status(401).json({ 
+        message: 'Token invalide après changement de mot de passe',
+        code: 'TOKEN_EXPIRED_PASSWORD_CHANGE'
+      });
     }
 
     req.admin = admin;
+    req.token = token;
     next();
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ message: 'Token expiré' });
+      logSecurityEvent('EXPIRED_TOKEN_USED', {
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        url: req.originalUrl,
+        severity: 'low'
+      });
+      return res.status(401).json({ 
+        message: 'Token expiré',
+        code: 'TOKEN_EXPIRED'
+      });
     } else if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({ message: 'Token invalide' });
+      logSecurityEvent('INVALID_TOKEN_FORMAT', {
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        url: req.originalUrl,
+        severity: 'medium'
+      });
+      return res.status(401).json({ 
+        message: 'Token invalide',
+        code: 'INVALID_TOKEN'
+      });
     }
-    return res.status(401).json({ message: 'Erreur d\'authentification' });
+    
+    logSecurityEvent('AUTH_ERROR', {
+      error: error.message,
+      ip: req.ip,
+      userAgent: req.get('User-Agent'),
+      url: req.originalUrl,
+      severity: 'high'
+    });
+    
+    return res.status(401).json({ 
+      message: 'Erreur d\'authentification',
+      code: 'AUTH_ERROR'
+    });
   }
 };
 
@@ -52,7 +134,7 @@ const requireSuperAdmin = async (req, res, next) => {
 // ROUTE REGISTER (Super Admin seulement)
 // ===================================
 
-router.post('/register', requireAdmin, requireSuperAdmin, async (req, res) => {
+router.post('/register', adminLimiter, requireAdmin, requireSuperAdmin, validateAdmin, async (req, res) => {
   const { email, password, nom, prenom, role = 'admin' } = req.body;
 
   if (!email || !password) {
@@ -117,7 +199,7 @@ router.post('/register', requireAdmin, requireSuperAdmin, async (req, res) => {
 // ROUTE LOGIN
 // ===================================
 
-router.post('/login', async (req, res) => {
+router.post('/login', loginLimiter, validateLogin, async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -190,7 +272,7 @@ router.post('/login', async (req, res) => {
 // ROUTE VERIFICATION TOKEN
 // ===================================
 
-router.get('/verify', requireAdmin, async (req, res) => {
+router.get('/verify', adminLimiter, requireAdmin, async (req, res) => {
   try {
     res.json({
       message: 'Token valide',
@@ -212,7 +294,7 @@ router.get('/verify', requireAdmin, async (req, res) => {
 // ROUTE LISTE DES ADMINS
 // ===================================
 
-router.get('/list', requireAdmin, async (req, res) => {
+router.get('/list', adminLimiter, requireAdmin, async (req, res) => {
   try {
     const admins = await Admin.find({ isActive: true })
       .select('-password')
@@ -244,7 +326,7 @@ router.get('/list', requireAdmin, async (req, res) => {
 // ROUTE SUPPRESSION ADMIN (Super Admin seulement)
 // ===================================
 
-router.delete('/delete', requireAdmin, requireSuperAdmin, async (req, res) => {
+router.delete('/delete', adminLimiter, requireAdmin, requireSuperAdmin, validateDeleteAdminQuery, async (req, res) => {
   const { email } = req.query;
 
   if (!email) {
@@ -293,7 +375,7 @@ router.delete('/delete', requireAdmin, requireSuperAdmin, async (req, res) => {
 // ROUTE CHANGEMENT RÔLE (Super Admin seulement)
 // ===================================
 
-router.put('/change-role', requireAdmin, requireSuperAdmin, async (req, res) => {
+router.put('/change-role', adminLimiter, requireAdmin, requireSuperAdmin, validateChangeRole, async (req, res) => {
   const { adminId, newRole } = req.body;
 
   if (!adminId || !newRole) {
@@ -337,7 +419,7 @@ router.put('/change-role', requireAdmin, requireSuperAdmin, async (req, res) => 
 // ROUTE CHANGEMENT MOT DE PASSE
 // ===================================
 
-router.put('/change-password', requireAdmin, async (req, res) => {
+router.put('/change-password', adminLimiter, requireAdmin, validateChangePassword, async (req, res) => {
   const { currentPassword, newPassword } = req.body;
 
   if (!currentPassword || !newPassword) {
@@ -368,12 +450,112 @@ router.put('/change-password', requireAdmin, async (req, res) => {
 });
 
 // ===================================
-// ROUTE LOGOUT
+// ROUTE LOGOUT AVEC RÉVOCATION TOKEN
 // ===================================
 
 router.post('/logout', requireAdmin, async (req, res) => {
-  console.log('Logout admin:', req.admin.email);
-  res.json({ message: 'Déconnexion réussie' });
+  try {
+    const token = req.token;
+    const admin = req.admin;
+    
+    const decoded = jwt.decode(token);
+    const expiresAt = new Date(decoded.exp * 1000);
+    
+    await TokenBlacklist.blacklistToken({
+      token,
+      adminId: admin._id,
+      adminEmail: admin.email,
+      reason: 'logout',
+      expiresAt,
+      ipAddress: req.ip,
+      userAgent: req.get('User-Agent')
+    });
+    
+    logSecurityEvent('ADMIN_LOGOUT', {
+      adminId: admin._id,
+      adminEmail: admin.email,
+      ip: req.ip,
+      userAgent: req.get('User-Agent'),
+      severity: 'info'
+    });
+    
+    console.log('Logout admin avec révocation token:', admin.email);
+    res.json({ 
+      message: 'Déconnexion réussie',
+      tokenRevoked: true
+    });
+  } catch (error) {
+    console.error('Erreur lors du logout:', error);
+    res.status(500).json({ 
+      message: 'Erreur lors de la déconnexion',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Erreur interne'
+    });
+  }
+});
+
+// ===================================
+// ROUTE MÉTRIQUES DE SÉCURITÉ (Admin seulement)
+// ===================================
+
+router.get('/security-metrics', adminLimiter, requireAdmin, async (req, res) => {
+  try {
+    const { getSecurityMetrics } = require('../middleware/monitoring');
+    const blacklistStats = await TokenBlacklist.getBlacklistStats();
+    
+    const metrics = {
+      ...getSecurityMetrics(),
+      tokenBlacklist: blacklistStats
+    };
+    
+    res.json({
+      message: 'Métriques de sécurité',
+      metrics,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Erreur récupération métriques:', error);
+    res.status(500).json({ 
+      message: 'Erreur serveur',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Erreur interne'
+    });
+  }
+});
+
+// ===================================
+// ROUTE RÉVOCATION MANUELLE TOKEN (Super Admin seulement)
+// ===================================
+
+router.post('/revoke-token', adminLimiter, requireAdmin, requireSuperAdmin, async (req, res) => {
+  try {
+    const { adminId, reason = 'admin_revoked' } = req.body;
+    
+    if (!adminId) {
+      return res.status(400).json({ message: 'ID admin requis' });
+    }
+    
+    await TokenBlacklist.blacklistAllUserTokens(adminId, reason, req.admin._id);
+    
+    logSecurityEvent('MANUAL_TOKEN_REVOCATION', {
+      targetAdminId: adminId,
+      revokedBy: req.admin._id,
+      revokedByEmail: req.admin.email,
+      reason,
+      ip: req.ip,
+      severity: 'high'
+    });
+    
+    res.json({ 
+      message: 'Tous les tokens de l\'admin ont été révoqués',
+      adminId,
+      reason
+    });
+  } catch (error) {
+    console.error('Erreur révocation token:', error);
+    res.status(500).json({ 
+      message: 'Erreur lors de la révocation',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Erreur interne'
+    });
+  }
 });
 
 module.exports = router;

@@ -5,29 +5,36 @@ const dotenv = require('dotenv');
 const helmet = require('helmet');
 const path = require('path');
 
-
-
 // Charger les variables d'environnement
 dotenv.config();
 
+// Importer les middlewares de sécurité
+const { globalLimiter, speedLimiter } = require('./middleware/rateLimiter');
+const { mongoSanitization, xssSanitization, cleanStrings } = require('./middleware/sanitization');
+const { accessLogMiddleware, securityLogMiddleware, authLogMiddleware } = require('./middleware/securityLogger');
+const { monitoringMiddleware, metricsMiddleware } = require('./middleware/monitoring');
+const { logger } = require('./config/logger');
+
 const app = express();
 const port = process.env.PORT || 3000;
-app.use(express.static(path.join(__dirname, 'public'))); // ✅ ceci permet de servir les fichiers statiques
+
+// Servir les fichiers statiques
+app.use(express.static(path.join(__dirname, 'public')));
 // ===================================
-// MIDDLEWARE DE SÉCURITÉ HELMET
+// MIDDLEWARE DE SÉCURITÉ HELMET RENFORCÉ
 // ===================================
 
 app.use(helmet({
-  // Content Security Policy
+  // Content Security Policy renforcée
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: [
         "'self'",
-        "'unsafe-inline'", // Nécessaire pour Angular en dev
-        "'unsafe-eval'",   // Nécessaire pour Angular en dev
+        process.env.NODE_ENV === 'development' ? "'unsafe-inline'" : null,
+        process.env.NODE_ENV === 'development' ? "'unsafe-eval'" : null,
         "https://cdnjs.cloudflare.com"
-      ],
+      ].filter(Boolean),
       styleSrc: [
         "'self'",
         "'unsafe-inline'", // Nécessaire pour Angular
@@ -44,19 +51,23 @@ app.use(helmet({
       ],
       connectSrc: [
         "'self'",
-        "http://localhost:3000",
-        "http://localhost:4200",
-        "ws://localhost:4200" // WebSocket pour Angular dev
-      ],
-      Formation: ["'self'"],
-      frameAncestors: ["'none'"]
+        process.env.NODE_ENV === 'development' ? "http://localhost:3000" : null,
+        process.env.NODE_ENV === 'development' ? "http://localhost:4200" : null,
+        process.env.NODE_ENV === 'development' ? "ws://localhost:4200" : null
+      ].filter(Boolean),
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+      frameAncestors: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"]
     }
   },
   
   // Cross-Origin Embedder Policy
-  crossOriginEmbedderPolicy: false, // Désactivé pour compatibilité
+  crossOriginEmbedderPolicy: false,
   
-  // Strict Transport Security (HTTPS uniquement)
+  // Strict Transport Security renforcé
   hsts: {
     maxAge: 31536000, // 1 an
     includeSubDomains: true,
@@ -72,28 +83,42 @@ app.use(helmet({
   // X-Content-Type-Options (protection MIME sniffing)
   noSniff: true,
   
-  // Referrer Policy
-  referrerPolicy: { policy: "strict-origin-when-cross-origin" }
+  // Referrer Policy stricte
+  referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+  
+  dnsPrefetchControl: { allow: false },
+  
+  ieNoOpen: true,
+  
+  permittedCrossDomainPolicies: false
 }));
 
 // ===================================
-// CORS SÉCURISÉ
+// CORS SÉCURISÉ ET STRICT
 // ===================================
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Autoriser les requêtes sans origin (applications mobiles, Postman)
     const allowedOrigins = [
-      'http://localhost:4200',
-      'http://localhost:3000',
-      'https://votre-domaine.com' // Remplacer par votre domaine en production
+      process.env.CORS_ORIGIN || 'http://localhost:4200',
+      'http://localhost:3000'
     ];
     
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
+    if (process.env.NODE_ENV === 'production') {
+      if (!origin) {
+        return callback(new Error('Origin manquant - accès refusé par CORS'));
+      }
+      if (!allowedOrigins.includes(origin)) {
+        logger.warn('CORS violation', { origin, allowedOrigins });
+        return callback(new Error('Non autorisé par CORS'));
+      }
     } else {
-      callback(new Error('Non autorisé par CORS'));
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
     }
+    
+    callback(null, true);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -101,25 +126,53 @@ const corsOptions = {
     'Content-Type', 
     'Authorization',
     'X-Requested-With',
-    'Accept'
+    'Accept',
+    'X-CSRF-Token'
   ],
-  maxAge: 86400 // Cache preflight 24h
+  exposedHeaders: ['X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset'],
+  maxAge: 86400, // Cache preflight 24h
+  optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
 
 // ===================================
-// AUTRES MIDDLEWARES
+// MIDDLEWARES DE SÉCURITÉ GLOBAUX
 // ===================================
 
-app.use(express.json({ limit: '10mb' })); // Limiter taille payload
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(globalLimiter);
+app.use(speedLimiter);
+app.use(monitoringMiddleware);
 
-// Middleware pour logs de sécurité
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.path} - IP: ${req.ip}`);
-  next();
-});
+// Logging de sécurité
+app.use(accessLogMiddleware);
+app.use(securityLogMiddleware);
+app.use(authLogMiddleware);
+
+app.use(express.json({ 
+  limit: process.env.MAX_FILE_SIZE || '10mb',
+  verify: (req, res, buf) => {
+    try {
+      JSON.parse(buf);
+    } catch (e) {
+      logger.warn('JSON invalide reçu', { ip: req.ip, error: e.message });
+      throw new Error('JSON invalide');
+    }
+  }
+}));
+
+app.use(express.urlencoded({ 
+  extended: true, 
+  limit: process.env.MAX_FILE_SIZE || '10mb',
+  parameterLimit: 100 // Limiter le nombre de paramètres
+}));
+
+app.use(mongoSanitization);
+app.use(cleanStrings);
+app.use(xssSanitization);
+
+// Middleware pour les métriques de sécurité
+app.use(metricsMiddleware);
 
 // ===================================
 // CONNEXION BASE DE DONNÉES
