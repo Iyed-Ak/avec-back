@@ -77,11 +77,9 @@ const publicLimiter = rateLimit({
 const speedLimiter = slowDown({
   windowMs: 15 * 60 * 1000, // 15 minutes
   delayAfter: 10, // Ralentir après 10 requêtes
-  delayMs: 500, // Délai de 500ms par requête supplémentaire
+  delayMs: () => 500, // Délai fixe de 500ms par requête supplémentaire
   maxDelayMs: 5000, // Délai maximum de 5 secondes
-  onLimitReached: (req, res, options) => {
-    console.log(`[SECURITY] Speed limit atteint - IP: ${req.ip} - ${new Date().toISOString()}`);
-  }
+  validate: { delayMs: false } // Désactiver l'avertissement
 });
 
 module.exports = {

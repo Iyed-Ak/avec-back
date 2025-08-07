@@ -17,12 +17,31 @@ const xssOptions = {
   stripIgnoreTagBody: ['script']
 };
 
-const mongoSanitization = mongoSanitize({
-  replaceWith: '_',
-  onSanitize: ({ req, key }) => {
-    console.log(`[SECURITY] Tentative NoSQL injection détectée - IP: ${req.ip} - Clé: ${key} - ${new Date().toISOString()}`);
+const mongoSanitization = (req, res, next) => {
+  try {
+    const sanitizeObject = (obj) => {
+      if (obj && typeof obj === 'object') {
+        for (const key in obj) {
+          if (key.startsWith('$') || key.includes('.')) {
+            console.log(`[SECURITY] Tentative NoSQL injection détectée - IP: ${req.ip} - Clé: ${key} - ${new Date().toISOString()}`);
+            delete obj[key];
+          } else if (typeof obj[key] === 'object') {
+            sanitizeObject(obj[key]);
+          }
+        }
+      }
+    };
+
+    if (req.body) sanitizeObject(req.body);
+    if (req.query) sanitizeObject(req.query);
+    if (req.params) sanitizeObject(req.params);
+    
+    next();
+  } catch (error) {
+    console.error('[SECURITY] Erreur sanitisation:', error);
+    next();
   }
-});
+};
 
 const xssSanitization = (req, res, next) => {
   const sanitizeObject = (obj) => {
