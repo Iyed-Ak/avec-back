@@ -1,0 +1,67 @@
+
+/* Section Statistiques Clés */
+.statistics-section {
+    background-color: #f7f7f7; /* Fond léger pour la section */
+    padding: 60px 0;
+  }
+  
+  .statistics-section h2 {
+    font-size: 2.5rem;
+    color: #2C3E50; /* Gris foncé pour le titre */
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  
+  .statistics-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 colonnes */
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .statistics-card {
+    background-color: #ffffff;
+    border-radius: 10px; /* Coins arrondis */
+    padding: 40px 20px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+  
+  .statistics-card:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    transform: translateY(-5px); /* Effet de levée au survol */
+  }
+  
+  .statistics-card .icon {
+    font-size: 40px; /* Taille de l'icône */
+    color: #f39c12; /* Couleur pour l'icône */
+    margin-bottom: 20px;
+  }
+  
+  .statistics-card .stat-number {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #2C3E50; /* Gris foncé pour le nombre */
+  }
+  
+  .statistics-card .stat-description {
+    font-size: 1.1rem;
+    color: #555; /* Gris moyen pour la description */
+    margin-top: 10px;
+  }
+  
+  /* Responsivité pour petits écrans */
+  @media (max-width: 768px) {
+    .statistics-cards {
+      grid-template-columns: repeat(2, 1fr); /* 2 colonnes sur petit écran */
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .statistics-cards {
+      grid-template-columns: 1fr; /* 1 colonne sur très petit écran */
+    }
+  }

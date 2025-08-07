@@ -1,0 +1,84 @@
+<div class="formation-detail-container">
+  <div class="gallery">
+    <div class="image-carousel">
+      <!-- Affiche l'image sélectionnée ou la première image de la formation -->
+      <img [src]="selectedImage || formation?.images[0]" [alt]="formation?.name" />
+    </div>
+    <div class="thumbnails" *ngIf="formation?.images?.length">
+      <!-- Affiche les miniatures d'images -->
+      <img
+        *ngFor="let image of formation.images"
+        [src]="image"
+        [alt]="formation.name"
+        (click)="selectImage(image)"
+        [class.selected]="image === selectedImage"
+      />
+    </div>
+  </div>
+  
+  <div class="description">
+    <h1>{{ formation?.name }}</h1>
+    <p>{{ formation?.fullDescription }}</p>
+    <div class="formation-details">
+      <ul>
+        <li><strong>Prix :</strong> {{ formation?.price }} DT</li>
+        <li><strong>Durée :</strong> {{ formation?.duration }}</li>
+        <li><strong>Fréquence :</strong> {{ formation?.freq }}</li>
+        <li><strong>Certificat  :</strong> {{ formation?.cert }}</li>
+      </ul>
+    </div>
+    <div class="button-container">
+      <button  (click)="showInscriptionForm()" class="btn-register">S'inscrire</button>
+    </div>
+  </div>
+</div>
+
+<div class="additional-content">
+  <!-- Objectifs et Contenus -->
+  <section class="goals-table" *ngIf="formation?.goals && formation?.content">
+    <h2>Objectifs et Programme de la Formation</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Objectifs</th>
+          <th>Contenu</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let goal of formation.goals; let i = index">
+          <td>{{ goal }}</td>
+          <td>{{ formation.content[i] }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Avantages -->
+  <section class="training-benefits" *ngIf="formation?.benefits">
+    <h2>Pourquoi choisir cette formation ?</h2>
+    <ul>
+      <li *ngFor="let benefit of formation.benefits">{{ benefit }}</li>
+    </ul>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq" *ngIf="formation?.faq">
+    <h2>Questions Fréquemment Posées</h2>
+    <div class="faq-item" *ngFor="let item of formation.faq">
+      <h4>{{ item.question }}</h4>
+      <p>{{ item.answer }}</p>
+    </div>
+  </section>
+  <!-- Formulaire d'inscription -->
+   <!-- Formulaire d'inscription (affiché par overlay) -->
+   <!-- Formulaire d'inscription -->
+<div *ngIf="isFormVisible" class="overlay">
+  <div class="form-popup">
+    <app-inscription 
+      [formation]="formation" 
+      (closeForm)="hideInscriptionForm()">
+    </app-inscription>
+  </div>
+</div>
+
+

@@ -1,0 +1,38 @@
+// src/app/admin/admin-routing.module.ts
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+
+import { AdminLayoutComponent } from './components/admin-layout/admin-layout.component';
+import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
+import { FormationsListComponent } from './components/formations-list/formations-list.component';
+import { InscriptionsListComponent } from './components/inscriptions-list/inscriptions-list.component';
+import { FormationFormComponent } from './components/formation-form/formation-form.component';
+import { AdminListComponent } from './components/admin-list/admin-list.component';
+import { ChangePasswordComponent } from './components/change-password/change-password.component';
+import { AdminAuthGuard } from './guards/admin-auth.guard';
+import { CreateAdminComponent } from './components/create-admin/create-admin.component';
+
+const routes: Routes = [
+  {
+    path: '',
+    component: AdminLayoutComponent,
+    canActivate: [AdminAuthGuard], // Protection activée
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: AdminDashboardComponent },
+      { path: 'formations', component: FormationsListComponent },
+      { path: 'inscriptions', component: InscriptionsListComponent },
+      { path: 'formation/new', component: FormationFormComponent },
+      { path: 'formation/edit/:id', component: FormationFormComponent },
+      { path: 'admins', component: AdminListComponent },
+      { path: 'change-password', component: ChangePasswordComponent },
+      { path: 'create-admin', component: CreateAdminComponent }
+    ]
+  }
+];
+
+@NgModule({
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule]
+})
+export class AdminRoutingModule { }

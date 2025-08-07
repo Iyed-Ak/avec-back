@@ -1,0 +1,54 @@
+/* admin/components/inscriptions-map/inscriptions-map.component.css */
+.map-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.map-container h2 {
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.no-data-message {
+  font-size: 0.875rem;
+  color: #6c757d;
+  font-weight: normal;
+}
+
+#map {
+  height: 500px;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  z-index: 1; /* Éviter les problèmes de z-index avec d'autres éléments */
+}
+
+/* Styles pour les popups de Leaflet */
+.marker-popup {
+  padding: 5px;
+}
+
+.marker-popup h4 {
+  margin-top: 5px;
+  margin-bottom: 10px;
+  color: #17a2b8;
+  font-size: 16px;
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 5px;
+}
+
+.marker-popup p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+/* Assurez-vous que le conteneur de la carte est visible */
+:host {
+  display: block;
+  width: 100%;
+}

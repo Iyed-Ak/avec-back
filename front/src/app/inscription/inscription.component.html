@@ -1,0 +1,152 @@
+<!-- Formulaire d'inscription -->
+<div class="inscription-container" *ngIf="!isSubmitted">
+  <h2>Inscription à la formation "{{ formation.name }}"</h2>
+  <div class="gallery">
+    <div class="formation-photo">
+      <img [src]="formation?.image" alt="Photo de la formation" class="small-photo" />
+    </div>
+  </div>
+
+  <button class="close-btn" (click)="closeFormPopup()">×</button>
+
+  <form (ngSubmit)="onSubmit()" #form="ngForm">
+    <!-- Nom -->
+    <div class="form-group">
+      <label for="userName">Nom</label>
+      <input
+        id="userName"
+        class="form-control"
+        [(ngModel)]="user.name"
+        name="name"
+        required
+        pattern="[a-zA-ZÀ-ÿ\s]+"
+        #name="ngModel"
+      />
+      <div *ngIf="name.invalid && name.touched" class="error-message">
+        Ce champ est obligatoire et doit être une chaîne de caractères valide.
+      </div>
+    </div>
+
+    <!-- Prénom -->
+    <div class="form-group">
+      <label for="userPrenom">Prénom</label>
+      <input
+        id="userPrenom"
+        class="form-control"
+        [(ngModel)]="user.prenom"
+        name="prenom"
+        required
+        pattern="[a-zA-ZÀ-ÿ\s]+"
+        #prenom="ngModel"
+      />
+      <div *ngIf="prenom.invalid && prenom.touched" class="error-message">
+        Ce champ est obligatoire et doit être une chaîne de caractères valide.
+      </div>
+    </div>
+
+    <!-- Email -->
+    <div class="form-group">
+      <label for="userEmail">Email</label>
+      <input
+        id="userEmail"
+        class="form-control"
+        [(ngModel)]="user.email"
+        name="email"
+        type="email"
+        required
+        [pattern]="emailPattern"
+        #email="ngModel"
+      />
+      <div *ngIf="email.invalid && email.touched" class="error-message">
+        Veuillez entrer un email valide.
+      </div>
+    </div>
+
+    <!-- Téléphone -->
+    <div class="form-group">
+      <label for="userTelephone">Téléphone</label>
+      <input
+        id="userTelephone"
+        class="form-control"
+        [(ngModel)]="user.telephone"
+        name="telephone"
+        type="tel"
+        required
+        pattern="^(\+216)[0-9]{8}$"
+        #telephone="ngModel"
+      />
+      <div *ngIf="telephone.invalid && telephone.touched" class="error-message">
+        Ce champ est obligatoire et doit contenir un numéro valide +216XXXXXXXX.
+      </div>
+    </div>
+
+    <!-- Gouvernorat -->
+    <div class="form-group">
+      <label for="userGouvernorat">Gouvernorat</label>
+      <select
+        id="userGouvernorat"
+        class="form-control"
+        [(ngModel)]="user.gouvernorat"
+        name="gouvernorat"
+        required
+        #gouvernorat="ngModel"
+      >
+        <option value="">Sélectionner un gouvernorat</option>
+        <option *ngFor="let gouvernorat of gouvernorats" [value]="gouvernorat">
+          {{ gouvernorat }}
+        </option>
+      </select>
+      <div *ngIf="gouvernorat.invalid && gouvernorat.touched" class="error-message">
+        Ce champ est obligatoire.
+      </div>
+    </div>
+
+    <!-- Ville -->
+    <div class="form-group">
+      <label for="userVille">Ville</label>
+      <input
+        id="userVille"
+        class="form-control"
+        [(ngModel)]="user.ville"
+        name="ville"
+        required
+        #ville="ngModel"
+      />
+      <div *ngIf="ville.invalid && ville.touched" class="error-message">
+        Ce champ est obligatoire.
+      </div>
+    </div>
+
+    <!-- Code Postal -->
+    <div class="form-group">
+      <label for="userCodePostal">Code Postal</label>
+      <input
+        id="userCodePostal"
+        class="form-control"
+        [(ngModel)]="user.codePostal"
+        name="codePostal"
+        type="text"
+        required
+        pattern="^\d{4}$"
+        #codePostal="ngModel"
+      />
+      <div *ngIf="codePostal.invalid && codePostal.touched" class="error-message">
+        Ce champ est obligatoire et doit contenir 4 chiffres.
+      </div>
+    </div>
+
+    <!-- Soumettre -->
+    <button type="submit" class="btn btn-primary" [disabled]="form.invalid">S'inscrire</button>
+  </form>
+</div>
+
+<!-- Message de confirmation - Pop-up -->
+<div *ngIf="isSubmitted" class="modal-overlay">
+  <div class="modal-content">
+    <img src="img/ok.png" alt="Validation" class="success-icon" />
+    <h3>Félicitations, {{ user.name }} {{ user.prenom }} !</h3>
+    <p>Votre inscription à la formation "{{ formation.name }}" a été effectuée avec succès.</p>
+    <p>Nous avons envoyé un email de validation à votre adresse et avons essayé de vous appeler sur le numéro {{ user.telephone }}. Merci de patienter.</p>
+    <button (click)="closePopup()" class="btn btn-success">Fermer</button>
+  </div>
+</div>

@@ -1,0 +1,339 @@
+/* Page de détail */
+.formation-detail-container {
+    margin-top: 150px; /* Ajuste selon la hauteur de ta navbar */
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    border-top: 2px solid #FFAA00; /* Ligne horizontale subtile */
+    padding: 20px;
+    background-color: #FFFFFF; /* Fond blanc pour le box */
+    border: 2px solid #FFAA00; /* Cadre doré pour correspondre au thème */
+    border-radius: 10px; /* Coins arrondis */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Ombre légère pour le relief */
+  }
+  
+  /* Galerie d'images */
+  .gallery {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-right: 20px;
+    border-right: 2px solid #FFAA00; /* Ligne verticale subtile */
+  }
+  
+  /* Image principale */
+  .image-carousel img {
+    width: 100%;
+    max-width: 500px;
+    border: 3px solid #FFAA00; /* Cadre doré */
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Légère ombre */
+  }
+  
+  /* Miniatures */
+  .thumbnails {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  .thumbnails img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 4px;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+  
+  .thumbnails img:hover {
+    transform: scale(1.1);
+    border-color: #FFAA00; /* Accent doré pour le survol */
+  }
+  
+  .thumbnails img.selected {
+    border-color: #FFAA00; /* Accent doré pour l'image sélectionnée */
+  }
+  
+  /* Zone de description */
+  .description {
+    flex: 2;
+    padding-left: 20px;
+    display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Espacement entre le texte et le bouton */
+  }
+  
+  /* Titre centré */
+.description h1 {
+    color: #003366; /* Bleu sombre pour le titre */
+    font-size: 28px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    text-align: center; /* Centre le texte */
+  }
+  .description hr {
+    margin: 10px 0;
+    border: none;
+    border-top: 1px solid #CCC;
+  }
+  
+  .description p {
+    font-size: 16px;
+    color: #555; /* Gris neutre */
+    line-height: 1.6;
+  }
+  .formation-details ul {
+    list-style-type: disc; /* Style des puces */
+    margin: 10px 0;
+    padding-left: 20px; /* Indentation des puces */
+    color: #333; /* Couleur du texte */
+    font-size: 16px; /* Taille du texte */
+  }
+  
+  .formation-details ul li {
+    margin-bottom: 15px !important;  /* Augmenter l'espacement entre les éléments */
+    
+  }
+  
+  .formation-details ul li strong {
+    color: #003366; /* Couleur pour les titres en gras */
+  }
+  
+  
+  /* Corps général */
+  body {
+    background-color: #F4F4F9; /* Fond général doux */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  /* Conteneur du bouton */
+.button-container {
+    margin-top: auto; /* Place le bouton en bas */
+    text-align: center; /* Centre horizontalement le bouton */
+  }
+  
+  /* Style du bouton S'inscrire */
+  .btn-register {
+    display: inline-block;
+    background-color: #FFAA00; /* Couleur assortie au thème */
+    color: #ffffff; /* Texte blanc */
+    font-size: 16px;
+    font-weight: bold;
+    padding: 10px 20px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 5px; /* Coins arrondis */
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  
+  .btn-register:hover {
+    background-color: #e69500; /* Couleur plus foncée au survol */
+    transform: scale(1.05); /* Légère augmentation de taille */
+  }
+  
+  .btn-register:active {
+    transform: scale(1); /* Rétablissement de la taille au clic */
+  }
+  .goals-table {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .goals-table h2 {
+    text-align: center;
+    font-size: 24px;
+    color: #003366;
+    margin-bottom: 20px;
+  }
+  
+  .goals-table table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+  }
+  
+  .goals-table th, .goals-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+  }
+  
+  .goals-table th {
+    background-color: #ffaa00;
+    color: #fff;
+  }
+  
+  .goals-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  /* Avantages */
+.training-benefits {
+  padding: 20px;
+  background-color: #fff9e6; /* Couleur légèrement jaune assortie */
+  border-radius: 10px;
+  margin-top: 20px;
+  border: 1px solid #ffaa00; /* Bordure assortie au thème */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.training-benefits h2 {
+  text-align: center;
+  font-size: 24px;
+  color: #003366; /* Bleu sombre pour le titre */
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+.training-benefits ul {
+  list-style-type: disc;
+  padding-left: 40px;
+  color: #555;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.training-benefits ul li {
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.training-benefits ul li::marker {
+  color: #ffaa00; /* Couleur jaune-orange pour les puces */
+}
+
+/* FAQ */
+.faq {
+  padding: 20px;
+  background-color: #fff9e6; /* Même couleur que la section avantages */
+  border-radius: 10px;
+  margin-top: 20px;
+  border: 1px solid #ffaa00; /* Bordure assortie */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.faq h2 {
+  text-align: center;
+  font-size: 24px;
+  color: #003366; /* Bleu sombre */
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.faq-item {
+  margin-bottom: 15px;
+}
+
+.faq-item h4 {
+  font-size: 18px;
+  color: #003366; /* Bleu sombre */
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.faq-item p {
+  font-size: 16px;
+  color: #555; /* Gris neutre */
+  margin: 0;
+  padding-left: 10px;
+  border-left: 3px solid #ffaa00; /* Accent visuel */
+  line-height: 1.6;
+}
+
+/* Style général pour une meilleure intégration */
+.additional-content {
+  padding: 20px;
+}
+
+.additional-content section {
+  margin-bottom: 20px;
+}
+/* Affichage du formulaire en overlay */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Fond sombre */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000; /* Formulaire au-dessus de la navbar et du footer */
+}
+
+.form-popup {
+  background: #fff;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.5s ease-out;
+  max-height: 100vh; /* Limite la hauteur pour éviter que le formulaire soit trop grand */
+  overflow-y: auto; /* Permet le défilement vertical si nécessaire */
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Téléphones et tablettes (moins de 768px) */
+@media (max-width: 768px) {
+  .formation-detail-container {
+    flex-direction: column; /* Empile les sections (galerie et description) */
+    gap: 20px; /* Ajoute de l'espace entre les sections */
+    padding: 15px; /* Réduit les marges */
+  }
+
+  .gallery {
+    margin-bottom: 20px; /* Ajoute de l'espacement sous la galerie */
+    border-right: none; /* Supprime la ligne verticale */
+    padding-right: 0; /* Supprime le padding inutile */
+  }
+
+  .image-carousel img {
+    max-width: 100%; /* Adapte les images à la largeur de l'écran */
+    height: auto; /* Maintient le ratio d'aspect */
+  }
+
+  .thumbnails {
+    justify-content: center; /* Centre les miniatures */
+    flex-wrap: wrap; /* Permet de passer sur plusieurs lignes si nécessaire */
+    gap: 10px;
+  }
+
+  .description {
+    padding-left: 0; /* Supprime le padding à gauche */
+    text-align: center; /* Centre le texte */
+  }
+
+  .description h1 {
+    font-size: 20px; /* Réduit la taille du titre */
+    margin-bottom: 10px;
+  }
+
+  .description p {
+    font-size: 14px; /* Réduit la taille du texte */
+  }
+
+  .btn-register {
+    width: 100%; /* Le bouton prend toute la largeur */
+    font-size: 14px; /* Réduit la taille du texte du bouton */
+    padding: 10px; /* Ajuste les marges internes */
+  }
+}
+
+  
+  

@@ -1,0 +1,8 @@
+<!-- admin/components/inscriptions-map/inscriptions-map.component.html -->
+<div class="map-container">
+  <h2>
+    {{ focusOnId ? 'Position de l\'inscrit' : 'Carte des inscriptions' }}
+    <small *ngIf="inscriptions.length === 0" class="no-data-message">Aucune inscription à afficher</small>
+  </h2>
+  <div id="map"></div>
+</div>

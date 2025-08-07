@@ -1,0 +1,86 @@
+/* admin-dashboard.component.css */
+.stats-container {
+  display: flex;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  flex: 1;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-right: 20px;
+  text-align: center;
+}
+
+.stat-card:last-child {
+  margin-right: 0;
+}
+
+.stat-value {
+  font-size: 36px;
+  font-weight: bold;
+  color: #007bff;
+}
+
+.stat-label {
+  font-size: 16px;
+  color: #6c757d;
+  margin-top: 5px;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.admin-table thead th {
+  background-color: #343a40;
+  color: white;
+  font-weight: 500;
+  text-align: left;
+}
+
+.admin-table tbody tr:hover {
+  background-color: #f1f3f5;
+}
+
+.btn {
+  display: inline-block;
+  font-weight: 400;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  border-radius: 4px;
+  transition: all 0.15s ease-in-out;
+  border: 1px solid transparent;
+}
+
+.btn-sm {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.btn-info {
+  color: #fff;
+  background-color: #17a2b8;
+  border-color: #17a2b8;
+}
+
+.btn-info:hover {
+  background-color: #138496;
+  border-color: #117a8b;
+}
