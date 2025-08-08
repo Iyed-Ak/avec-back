@@ -1,13 +1,12 @@
-<!-- admin/components/admin-dashboard/admin-dashboard.component.html -->
 <div class="dashboard-container">
   <h2>Tableau de bord</h2>
   <div class="stats-container">
     <div class="stat-card">
-      <div class="stat-value">{{ stats.totalFormations || 0 }}</div>
+      <div class="stat-value">{{ stats?.totalFormations || 0 }}</div>
       <div class="stat-label">Formations</div>
     </div>
     <div class="stat-card">
-      <div class="stat-value">{{ stats.totalInscriptions || 0 }}</div>
+      <div class="stat-value">{{ stats?.totalInscriptions || 0 }}</div>
       <div class="stat-label">Inscriptions</div>
     </div>
   </div>
@@ -22,29 +21,29 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let formation of formations.slice(0, 5)">
-        <td>{{ formation.name }}</td>
-        <td>{{ formation.duration }}</td>
-        <td>{{ formation.price }} €</td>
+      <tr *ngFor="let formation of formations?.slice(0, 5)">
+        <td>{{ formation?.name || 'Nom inconnu' }}</td>
+        <td>{{ formation?.duration || 'Durée inconnue' }}</td>
+        <td>{{ formation?.price != null ? (formation.price + ' €') : 'Prix inconnu' }}</td>
       </tr>
     </tbody>
   </table>
 
   <h3>Dernières inscriptions</h3>
-<table class="admin-table">
-  <thead>
-    <tr>
-      <th>Nom</th>
-      <th>Email</th>
-      <th>Formation</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let inscription of inscriptions.slice(0, 5)">
-      <td>{{ inscription.user.name }} {{ inscription.user.prenom }}</td>
-      <td>{{ inscription.user.email }}</td>
-      <td>{{ inscription.formation.name }}</td>
-    </tr>
-  </tbody>
-</table>
-
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Email</th>
+        <th>Formation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let inscription of inscriptions?.slice(0, 5)">
+        <td>{{ inscription.user?.name || 'Nom inconnu' }} {{ inscription.user?.prenom || '' }}</td>
+        <td>{{ inscription.user?.email || 'Email manquant' }}</td>
+        <td>{{ inscription.formation?.name || 'Formation inconnue' }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

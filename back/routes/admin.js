@@ -7,6 +7,9 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const Admin = require('../models/Admin');
+const { validateAdminRegistration, validateAdminLogin } = require('../middleware/validation');
+const { adminLoginLimiter } = require('../middleware/rateLimiting');
+const { logAuthAttempt, logDataAccess } = require('../config/logger');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'mon_secret';
 
@@ -52,7 +55,7 @@ const requireSuperAdmin = async (req, res, next) => {
 // ROUTE REGISTER (Super Admin seulement)
 // ===================================
 
-router.post('/register', requireAdmin, requireSuperAdmin, async (req, res) => {
+router.post('/register', requireAdmin, requireSuperAdmin, validateAdminRegistration, async (req, res) => {
   const { email, password, nom, prenom, role = 'admin' } = req.body;
 
   if (!email || !password) {
@@ -117,7 +120,7 @@ router.post('/register', requireAdmin, requireSuperAdmin, async (req, res) => {
 // ROUTE LOGIN
 // ===================================
 
-router.post('/login', async (req, res) => {
+router.post('/login', adminLoginLimiter, validateAdminLogin, async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -134,6 +137,10 @@ router.post('/login', async (req, res) => {
     
     if (!admin) {
       console.log('Admin introuvable ou désactivé pour email:', email);
+      logAuthAttempt(email, req.ip, false, { 
+        reason: 'Admin not found',
+        userAgent: req.get('User-Agent')
+      });
       return res.status(401).json({ message: 'Identifiants invalides' });
     }
 
@@ -144,6 +151,10 @@ router.post('/login', async (req, res) => {
 
     if (!isMatch) {
       console.log('Mot de passe incorrect pour:', email);
+      logAuthAttempt(email, req.ip, false, { 
+        reason: 'Invalid password',
+        userAgent: req.get('User-Agent')
+      });
       return res.status(401).json({ message: 'Identifiants invalides' });
     }
 
@@ -164,6 +175,10 @@ router.post('/login', async (req, res) => {
     });
 
     console.log('Connexion réussie pour:', email);
+    logAuthAttempt(email, req.ip, true, { 
+      adminId: admin._id,
+      userAgent: req.get('User-Agent')
+    });
 
     res.json({
       message: 'Connexion réussie',
@@ -377,3 +392,5 @@ router.post('/logout', requireAdmin, async (req, res) => {
 });
 
 module.exports = router;
+module.exports.requireAdmin = requireAdmin;
+module.exports.requireSuperAdmin = requireSuperAdmin;

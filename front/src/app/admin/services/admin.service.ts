@@ -51,11 +51,21 @@ export class AdminService {
   }
 
   // Inscriptions CRUD
-  getAllInscriptions(): Observable<any[]> {
-    return this.http.get<any[]>(this.inscriptionsUrl).pipe(
-      catchError(this.handleError)
-    );
-  }
+// Remplacer la méthode getAllInscriptions() dans admin.service.ts
+
+getAllInscriptions(): Observable<any[]> {
+  const token = localStorage.getItem('admin_auth_token');
+  console.log('AdminService.getAllInscriptions - Token available:', token ? 'Yes' : 'No');
+  
+  return this.http.get<any[]>(this.inscriptionsUrl).pipe(
+    catchError((error) => {
+      console.error('Error in getAllInscriptions:', error);
+      console.error('Error status:', error.status);
+      console.error('Error message:', error.message);
+      return this.handleError(error);
+    })
+  );
+}
 
   getInscriptionById(id: string): Observable<any> {
     return this.http.get<any>(`${this.inscriptionsUrl}/${id}`).pipe(

@@ -15,8 +15,7 @@
       [inscriptions]="selectedInscription ? [selectedInscription] : inscriptions"
       [focusOnId]="selectedInscription?._id">
     </app-inscriptions-map>
-    
-    <!-- Bouton pour revenir à tous les inscrits si un est sélectionné -->
+
     <div *ngIf="selectedInscription" class="mt-3 text-center">
       <button class="btn btn-secondary" (click)="selectedInscription = null">
         Afficher tous les inscrits
@@ -40,13 +39,13 @@
     </thead>
     <tbody>
       <tr *ngFor="let inscription of inscriptions">
-        <td>{{ inscription.user.name }}</td>
-        <td>{{ inscription.user.prenom }}</td>
-        <td>{{ inscription.user.email }}</td>
-        <td>{{ inscription.user.telephone }}</td>
-        <td>{{ inscription.formation.name }}</td>
-        <td>{{ inscription.user.gouvernorat }}</td>
-        <td>{{ inscription.createdAt | date: 'dd/MM/yyyy' }}</td>
+        <td>{{ inscription.user?.name || 'Nom inconnu' }}</td>
+        <td>{{ inscription.user?.prenom || 'Prénom inconnu' }}</td>
+        <td>{{ inscription.user?.email || 'Email manquant' }}</td>
+        <td>{{ inscription.user?.telephone || 'Téléphone manquant' }}</td>
+        <td>{{ inscription.formation?.name || 'Formation inconnue' }}</td>
+        <td>{{ inscription.user?.gouvernorat || 'Non précisé' }}</td>
+        <td>{{ inscription.createdAt ? (inscription.createdAt | date: 'dd/MM/yyyy') : 'Date inconnue' }}</td>
         <td class="action-buttons">
           <button class="btn btn-sm btn-info" (click)="selectInscription(inscription)" title="Voir sur la carte">
             <i class="fas fa-map-marker-alt"></i>

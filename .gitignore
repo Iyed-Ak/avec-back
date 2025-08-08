@@ -1,5 +1,42 @@
-.env 
-*.log 
-node_modules/ 
-dist/ 
-build/ 
+# === NODE.JS ===
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+package-lock.json
+
+# === ANGULAR ===
+dist/
+.angular/
+.angular/cache/
+.angular/config.json
+
+# === ENVIRONNEMENT ===
+.env
+.env.local
+.env.development
+.env.production
+
+# === BUILD ET TEMP ===
+build/
+tmp/
+*.tmp
+
+# === LOGS ===
+*.log
+logs/
+*.pid
+*.seed
+*.pid.lock
+
+# === OS ===
+.DS_Store
+Thumbs.db
+
+# === VSCODE ===
+.vscode/
+
+# === DATABASES LOCALES (si tu en utilises) ===
+*.sqlite
+*.db
+*.bak
